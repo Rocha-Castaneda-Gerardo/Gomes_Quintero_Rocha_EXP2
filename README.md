@@ -8,6 +8,9 @@ Desarrollado de forma distribuida en GitHub y validado con pruebas unitarias **x
 
 
 | Nombre completo              | Usuario de GitHub | Rama(s) a cargo |
+
 | Gómez Romero Sebastián       | ` @Bastian-TP   ` | `feature/...` |
+
 | Quintero Retiz Luis Fernando | ` @LFernando24`   | `feature/...` |
+
 | Rocha Castañeda Gerardo      | `@serranitaaaaaa` | `feature/...` |
