@@ -6,265 +6,165 @@ using Juegoteca.Biblioteca.Modelos;
 namespace Juegoteca.Biblioteca.Gestores
 {
     /// <summary>
-    /// Gestiona el catálogo de videojuegos disponibles, su búsqueda y ordenamiento.
+    /// Gestiona el catálogo de videojuegos, incluyendo agregar, eliminar, buscar y algoritmos de ordenamiento/búsqueda.
     /// </summary>
     public class GestorVideojuegos : IGestorVideojuegos
     {
-        // Propiedad requerida por IGestorVideojuegos
-        public List<Videojuego> JuegosDisponibles { get; private set; }
+        public List<Videojuego> JuegosDisponibles { get; set; }
 
-        /// <summary>
-        /// Constructor sin parámetros. Cada instancia inicializa su propia lista.
-        /// </summary>
         public GestorVideojuegos()
         {
             JuegosDisponibles = new List<Videojuego>();
         }
 
-        // FASE 1: MÉTODOS BÁSICOS DEL CATÁLOGO (Rama: feature/gestor)
-
-        /// <summary>
-        /// Añade un videojuego al catálogo evitando duplicados (comparando título sin importar mayúsculas).
-        /// </summary>
         public void AgregarJuego(Videojuego juego)
         {
-            if (juego == null) return;
-
-            // Verificar si ya existe un juego con el mismo título
-            bool yaExiste = false;
-            foreach (var item in JuegosDisponibles)
-            {
-                if (item.Titulo.Equals(juego.Titulo, StringComparison.OrdinalIgnoreCase))
-                {
-                    yaExiste = true;
-                    break;
-                }
-            }
-
-            if (!yaExiste)
+            if (juego != null && !JuegosDisponibles.Exists(j => j.Titulo.Equals(juego.Titulo, StringComparison.OrdinalIgnoreCase)))
             {
                 JuegosDisponibles.Add(juego);
             }
         }
 
-        /// <summary>
-        /// Elimina un videojuego específico del catálogo.
-        /// </summary>
         public bool EliminarJuego(Videojuego juego)
         {
-            if (juego == null || JuegosDisponibles.Count == 0)
-                return false;
+            return JuegosDisponibles.Remove(juego);
+        }
 
-            // Buscamos coincidencia por referencia o por título
-            for (int i = 0; i < JuegosDisponibles.Count; i++)
+        public bool EliminarPorIndice(int indice)
+        {
+            if (indice >= 0 && indice < JuegosDisponibles.Count)
             {
-                if (JuegosDisponibles[i] == juego ||
-                    JuegosDisponibles[i].Titulo.Equals(juego.Titulo, StringComparison.OrdinalIgnoreCase))
-                {
-                    JuegosDisponibles.RemoveAt(i);
-                    return true;
-                }
+                JuegosDisponibles.RemoveAt(indice);
+                return true;
             }
-
             return false;
         }
 
-        /// <summary>
-        /// Elimina el videojuego ubicado en el índice especificado.
-        /// </summary>
-        public bool EliminarPorIndice(int indice)
-        {
-            if (indice < 0 || indice >= JuegosDisponibles.Count)
-                return false;
-
-            JuegosDisponibles.RemoveAt(indice);
-            return true;
-        }
-
-        /// <summary>
-        /// Busca videojuegos cuyo título contenga el texto indicado (ignorando mayúsculas/minúsculas).
-        /// </summary>
         public List<Videojuego> BuscarPorTitulo(string texto)
         {
-            List<Videojuego> resultados = new List<Videojuego>();
-
-            if (string.IsNullOrWhiteSpace(texto) || JuegosDisponibles.Count == 0)
-                return resultados;
+            var resultados = new List<Videojuego>();
+            if (string.IsNullOrWhiteSpace(texto)) return resultados;
 
             foreach (var juego in JuegosDisponibles)
             {
-                if (juego.Titulo.IndexOf(texto, StringComparison.OrdinalIgnoreCase) >= 0)
+                if (juego.Titulo.Contains(texto, StringComparison.OrdinalIgnoreCase))
                 {
                     resultados.Add(juego);
                 }
             }
-
             return resultados;
         }
 
-        /// <summary>
-        /// Vacía completamente la lista del catálogo actual.
-        /// </summary>
         public void LimpiarCatalogo()
         {
             JuegosDisponibles.Clear();
         }
 
-        // FASE 2: ALGORITMOS MANUALES (Rama: feature/algoritmos)
-        // NOTA: Prohibido usar List.Sort(), OrderBy() o List.BinarySearch().
-        // En Fase 1 puedes dejar estos métodos lanzando NotImplementedException
-        // o retornando valores vacíos hasta llegar a Fase 2.
-   
-        /// <summary>
-        /// Ordena EN EL LUGAR la lista recibida, de forma ascendente por HorasJuego usando QuickSort.
-        /// </summary>
+        // --- FASE 2: ALGORITMOS ---
+
         public void QuickSort(List<Videojuego> lista)
         {
-            if (lista == null || lista.Count <= 1)
-                return;
-
-            QuickSortRecursivo(lista, 0, lista.Count - 1);
+            if (lista == null || lista.Count <= 1) return;
+            QuickSortRecursive(lista, 0, lista.Count - 1);
         }
 
-        private void QuickSortRecursivo(List<Videojuego> lista, int izquierda, int derecha)
+        private void QuickSortRecursive(List<Videojuego> lista, int baja, int alta)
         {
-            if (izquierda < derecha)
+            if (baja < alta)
             {
-                int indicePivote = Particionar(lista, izquierda, derecha);
-                QuickSortRecursivo(lista, izquierda, indicePivote - 1);
-                QuickSortRecursivo(lista, indicePivote + 1, derecha);
+                int pi = Particionar(lista, baja, alta);
+                QuickSortRecursive(lista, baja, pi - 1);
+                QuickSortRecursive(lista, pi + 1, alta);
             }
         }
 
-        private int Particionar(List<Videojuego> lista, int izquierda, int derecha)
+        private int Particionar(List<Videojuego> lista, int baja, int alta)
         {
-            int pivoteHoras = lista[derecha].HorasJuego;
-            int i = izquierda - 1;
-
-            for (int j = izquierda; j < derecha; j++)
+            int pivot = lista[alta].HorasJuego;
+            int i = (baja - 1);
+            for (int j = baja; j < alta; j++)
             {
-                if (lista[j].HorasJuego <= pivoteHoras)
+                if (lista[j].HorasJuego < pivot)
                 {
                     i++;
-                    // Intercambiar elementos
-                    Videojuego temp = lista[i];
+                    var temp = lista[i];
                     lista[i] = lista[j];
                     lista[j] = temp;
                 }
             }
-
-            // Colocar el pivote en su posición correcta
-            Videojuego tempPivote = lista[i + 1];
-            lista[i + 1] = lista[derecha];
-            lista[derecha] = tempPivote;
-
+            var tempSwap = lista[i + 1];
+            lista[i + 1] = lista[alta];
+            lista[alta] = tempSwap;
             return i + 1;
         }
 
-        /// <summary>
-        /// Retorna una NUEVA lista ordenada ascendentemente por HorasJuego sin modificar la original.
-        /// </summary>
         public List<Videojuego> MergeSort(List<Videojuego> lista)
         {
-            if (lista == null)
-                return new List<Videojuego>();
-
-            if (lista.Count <= 1)
-                return new List<Videojuego>(lista);
+            if (lista == null) return new List<Videojuego>();
+            if (lista.Count <= 1) return new List<Videojuego>(lista);
 
             int medio = lista.Count / 2;
-            List<Videojuego> izquierda = new List<Videojuego>();
-            List<Videojuego> derecha = new List<Videojuego>();
+            var izquierda = lista.GetRange(0, medio);
+            var derecha = lista.GetRange(medio, lista.Count - medio);
 
-            for (int i = 0; i < medio; i++)
-                izquierda.Add(lista[i]);
-
-            for (int i = medio; i < lista.Count; i++)
-                derecha.Add(lista[i]);
-
-            izquierda = MergeSort(izquierda);
-            derecha = MergeSort(derecha);
-
-            return Mezclar(izquierda, derecha);
+            return UnirMerge(MergeSort(izquierda), MergeSort(derecha));
         }
 
-        private List<Videojuego> Mezclar(List<Videojuego> izquierda, List<Videojuego> derecha)
+        private List<Videojuego> UnirMerge(List<Videojuego> izq, List<Videojuego> der)
         {
-            List<Videojuego> resultado = new List<Videojuego>();
+            var resultado = new List<Videojuego>();
             int i = 0, j = 0;
-
-            while (i < izquierda.Count && j < derecha.Count)
+            while (i < izq.Count && j < der.Count)
             {
-                if (izquierda[i].HorasJuego <= derecha[j].HorasJuego)
+                if (izq[i].HorasJuego <= der[j].HorasJuego)
                 {
-                    resultado.Add(izquierda[i]);
+                    resultado.Add(izq[i]);
                     i++;
                 }
                 else
                 {
-                    resultado.Add(derecha[j]);
+                    resultado.Add(der[j]);
                     j++;
                 }
             }
-
-            while (i < izquierda.Count)
-            {
-                resultado.Add(izquierda[i]);
-                i++;
-            }
-
-            while (j < derecha.Count)
-            {
-                resultado.Add(derecha[j]);
-                j++;
-            }
-
+            while (i < izq.Count) { resultado.Add(izq[i]); i++; }
+            while (j < der.Count) { resultado.Add(der[j]); j++; }
             return resultado;
         }
 
-        /// <summary>
-        /// Ordena por Titulo una COPIA de JuegosDisponibles y retorna el índice del juego encontrado, o -1.
-        /// </summary>
         public int BusquedaBinaria(string titulo)
         {
-            if (string.IsNullOrWhiteSpace(titulo) || JuegosDisponibles == null || JuegosDisponibles.Count == 0)
-                return -1;
+            if (JuegosDisponibles == null || JuegosDisponibles.Count == 0) return -1;
 
-            // 1. Crear una copia para no alterar JuegosDisponibles
-            List<Videojuego> copiaOrdenada = new List<Videojuego>(JuegosDisponibles);
-
-            // 2. Ordenar la copia alfabéticamente por Titulo (ordenamiento manual Insertion/Bubble Sort)
-            for (int i = 0; i < copiaOrdenada.Count - 1; i++)
+            // Ordena una copia por Título (sin alterar el original)
+            var copia = new List<Videojuego>(JuegosDisponibles);
+            for (int i = 0; i < copia.Count - 1; i++)
             {
-                for (int j = 0; j < copiaOrdenada.Count - i - 1; j++)
+                for (int j = 0; j < copia.Count - i - 1; j++)
                 {
-                    if (string.Compare(copiaOrdenada[j].Titulo, copiaOrdenada[j + 1].Titulo, StringComparison.OrdinalIgnoreCase) > 0)
+                    if (string.Compare(copia[j].Titulo, copia[j + 1].Titulo, StringComparison.OrdinalIgnoreCase) > 0)
                     {
-                        Videojuego temp = copiaOrdenada[j];
-                        copiaOrdenada[j] = copiaOrdenada[j + 1];
-                        copiaOrdenada[j + 1] = temp;
+                        var temp = copia[j];
+                        copia[j] = copia[j + 1];
+                        copia[j + 1] = temp;
                     }
                 }
             }
 
-            // 3. Ejecutar Búsqueda Binaria sobre la copia ordenada
-            int inicio = 0;
-            int fin = copiaOrdenada.Count - 1;
+            int baja = 0;
+            int alta = copia.Count - 1;
 
-            while (inicio <= fin)
+            while (baja <= alta)
             {
-                int medio = inicio + (fin - inicio) / 2;
-                int comparacion = string.Compare(copiaOrdenada[medio].Titulo, titulo, StringComparison.OrdinalIgnoreCase);
+                int medio = baja + (alta - baja) / 2;
+                int comparacion = string.Compare(copia[medio].Titulo, titulo, StringComparison.OrdinalIgnoreCase);
 
-                if (comparacion == 0)
-                    return medio; // Encontrado en la lista ordenada
-                else if (comparacion < 0)
-                    inicio = medio + 1;
-                else
-                    fin = medio - 1;
+                if (comparacion == 0) return medio;
+                if (comparacion < 0) baja = medio + 1;
+                else alta = medio - 1;
             }
 
-            return -1; // No encontrado
+            return -1;
         }
     }
 }
