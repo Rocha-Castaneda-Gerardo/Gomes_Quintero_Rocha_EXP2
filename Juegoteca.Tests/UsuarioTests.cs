@@ -26,7 +26,7 @@ namespace Juegoteca.Tests
         [InlineData("")]
         [InlineData(" ")]
         [InlineData(null)]
-        public void Constructor_NombreInvalido_LanzaArgumentException(string nombreInvalido)
+        public void Constructor_NombreInvalido_LanzaArgumentException(string? nombreInvalido)
         {
             // Arrange, Act & Assert
             Assert.Throws<ArgumentException>(() => new Usuario(nombreInvalido));
