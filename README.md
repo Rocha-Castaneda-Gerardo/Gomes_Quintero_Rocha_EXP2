@@ -9,8 +9,8 @@ Desarrollado de forma distribuida en GitHub y validado con pruebas unitarias **x
 
 | Nombre completo              | Usuario de GitHub | Rama(s) a cargo |
 
-| Gómez Romero Sebastián       | ` @Bastian-TP   ` | `feature/...` |
+| Gómez Romero Sebastián       | ` @Bastian-TP   ` | `feature/gestor, feature/algoritmo` |
 
-| Quintero Retiz Luis Fernando | ` @LFernando24`   | `feature/...` |
+| Quintero Retiz Luis Fernando | ` @LFernando24`   | `feature/exportador, feature/datos-prueba` |
 
-| Rocha Castañeda Gerardo      | `@serranitaaaaaa` | `feature/...` |
+| Rocha Castañeda Gerardo      | `@serranitaaaaaa` | `feature/videojuego, feature/usuario` |
